@@ -79,6 +79,9 @@
       <div id="mods-container" class="container vh-25">
         <h1>MODS</h1>
         <button id="hide-mods-button">HIDE MODS</button>
+        <button id="cup-select-button">Cup</button>
+        <button id="time-select-button">Time</button>
+        <button id="length-select-button">Length</button>
       </div>
     </main>
     <!-- End of Content -->
@@ -94,28 +97,30 @@
       style.type='text/css';
       var createdAnimations = [];
       var correctCup = 0; // Default just so game doesnt break
+
+      var time = 750;
+      const selectTime = [750, 500, 250]; // Time options
+
       var cupNum = 5; // Default number of cups
-      const cupMax = 7; // Maximum number of cups
+      const selectCup = [5, 7]
+
+      var shuffleLength = 4; // Default length of shuffle
+      const selectLength = [4, 6, 8];
+      const shuffleNum = 6; // Number of available shuffles, default for 5 cups
 
       $(document).ready(function () {
-        let time = 1000;
         updateCorrectCup();
+        updateModButtonValues();
+        showCorrectCup();
         // Start button logic
         $('#start-button').click(function () {
           // TODO: Change this for number of cups shown
           // TODO: Make an effect for starting the game 
           hideElementsBeforeGame();
           hideCorrectCup();
-          funky5_2(time);
-          $('#test').text(`${correctCup}`);
-          window.setTimeout(function () {
-            tunnel_L(time); 
-            $('#test').text(`${correctCup}`);
-          }, time);
-          window.setTimeout(function () {
-            cut5_R(time)
-            $('#test').text(`${correctCup}`);
-          }, 2*time);
+
+          // Placeholder puzzle
+          shuffle5_linearTime(shuffleLength, time);
         });
 
         // Clicking Cup Logic
@@ -130,8 +135,9 @@
             } else {
               alert(`NONONONONONNO, cup num: ${correctCup}`)
             }
-            $('#start-button').show();
+            showElementsAfterGame();
             updateCorrectCup();
+            showCorrectCup();
           });
         }
 
@@ -142,7 +148,34 @@
         $('#hide-mods-button').click(function() {
           hideModMenu();
         });
+
+        $('#time-select-button').click(function() {
+          let currentIndex = selectTime.indexOf(time);
+          if (currentIndex + 1 === selectTime.length) {
+            time = selectTime[0];
+          } else {
+            time = selectTime[currentIndex + 1];
+          }
+          updateModButtonValues();
+        });
+        $('#length-select-button').click(function() {
+          let currentIndex = selectLength.indexOf(shuffleLength);
+          if (currentIndex + 1 === selectLength.length) {
+            shuffleLength = selectLength[0];
+          } else {
+            shuffleLength = selectLength[currentIndex + 1];
+          }
+          updateModButtonValues();
+        });
       });
+
+      // All game logic, showing hiding buttons / updating elements
+
+      // Show the elements after gameplay
+      function showElementsAfterGame() {
+        $('#start-button').show();
+        $('#show-mods-button').show();
+      }
 
       // Hide all elements that block gameplay before play
       function hideElementsBeforeGame() {
@@ -150,6 +183,7 @@
         $('#show-mods-button').hide();
       }
 
+      // Shows the mod menu
       function showModMenu() {
         let modsContainer = document.getElementById('mods-container');
         modsContainer.classList.remove('hide-mods');
@@ -158,6 +192,7 @@
         $('#start-button').attr('disabled', 'true');
       }
 
+      // Hides the mod menu
       function hideModMenu() {
         let modsContainer = document.getElementById('mods-container');  
         modsContainer.classList.remove('show-mods');
@@ -165,11 +200,6 @@
         modsContainer.classList.add('hide-mods');
         $('#start-button').removeAttr('disabled')
 
-      }
-
-      // Change the correct cup after a round of the game
-      function updateCorrectCup() {
-        correctCup = Math.floor(Math.random() * cupNum);
       }
 
       // Shows correct cup
@@ -183,6 +213,20 @@
           $(`#cup-${i}`).attr('src', 'img/placeholder.jpg');
         }
       }
+
+      // Change the correct cup after a round of the game
+      function updateCorrectCup() {
+        correctCup = Math.floor(Math.random() * cupNum);
+      }
+
+      // Update values on the mod buttons
+      function updateModButtonValues() {
+        $('#cup-select-button').text(`Cups: ${cupNum} cups`);
+        $('#time-select-button').text(`Time between steps: ${time} ms`);
+        $('#length-select-button').text(`Length of shuffle: ${shuffleLength} steps`);
+      }
+
+      // All moving cup logic
 
       // Moves the cup x units to the right, negative makes it move left
       // and upDir up if pos down if neg, zero locks y axis movement
@@ -216,6 +260,33 @@
         cup.className = className;
       }
 
+      // Basic shuffle for 5 cups linear time meaning time is constant
+      function shuffle5_linearTime(length, time) {
+        for (let i=0; i < length; i++) {
+          switch(Math.floor(Math.random() * (shuffleNum + 1))) {
+            case 0:
+              window.setTimeout(function() {cut5_L(time);}, i * time);
+              break;
+            case 1:
+              window.setTimeout(function() {cut5_R(time)}, i * time);
+              break;
+            case 2:
+              window.setTimeout(function() {tunnel5_L(time)}, i * time);
+              break;
+            case 3:
+              window.setTimeout(function() {tunnel5_R(time)}, i * time);
+              break;
+            case 4:
+              window.setTimeout(function() {funky5_1(time)}, i * time);
+              break;
+            case 5:
+              window.setTimeout(function() {funky5_2(time)}, i * time);
+              break;
+          }
+        } 
+        window.setTimeout(function() {});
+      }
+
       // Different Scramble steps
       // Cuts the 4 left cups ignore the last cup
       function cut5_L(time) {
@@ -236,7 +307,7 @@
         correctCup = correctCupArr[correctCup];
       }
       // Tunnels the far right cup to the far left
-      function tunnel_L(time) {
+      function tunnel5_L(time) {
         moveCup('cup-0', -1, 1, time);
         moveCup('cup-1', 1, 1, time);
         moveCup('cup-2', -1, 1, time);
