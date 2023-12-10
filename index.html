@@ -17,11 +17,69 @@
       integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
       crossorigin="anonymous"
     ></script>
+    <style>
+      .vh-25 {
+        height: 25vh;
+      }
+      .vh-50 {
+        height: 50vh;
+      }
+
+      /* body, html {
+        height: 100%;
+        overflow: hidden;
+      } */
+
+      #mods-container {
+        background-color: rgba(128, 128, 128, 0.6);;
+      }
+
+      .show-mods {
+        position: relative;
+        animation-name: show-mods-anim;
+        animation-duration: 1s;
+        transform:translate(0, -50vh);
+      }
+
+      .hide-mods {
+        position: relative;
+        animation-name: show-mods-anim;
+        animation-duration: 1s;
+        animation-direction: reverse;
+      }
+
+      @keyframes show-mods-anim {
+        from    {transform:translate(0px, 0px);}
+        to    {transform:translate(0px, -50vh);}
+      }
+    </style>
   </head>
   <body>
     <!-- Start of Content -->
     <main>
-      <h1>Home page</h1>
+      <!-- Container for the title -->
+      <div id="title-container" class="container vh-25">
+        <h1 id='test'>AAAA</h1>
+      </div>
+      <!-- Container for the cups -->
+      <div id="cup-container" class="d-flex justify-content-center align-items-center vh-50">
+        <!-- Cups will have built in margins -->
+        <img src="img/placeholder.jpg" id="cup-0" height="100" width="100" alt="cup"/> 
+        <img src="img/placeholder.jpg" id="cup-1" height="100" width="100" alt="cup"/>
+        <img src="img/placeholder.jpg" id="cup-2" height="100" width="100" alt="cup"/>
+        <img src="img/placeholder.jpg" id="cup-3" height="100" width="100" alt="cup"/>
+        <img src="img/placeholder.jpg" id="cup-4" height="100" width="100" alt="cup"/>
+      </div>
+      <!-- Container for start button -->
+      <div id="button-container" class="container vh-25">
+        <button id="start-button">Start Game</button>
+        <button id="show-mods-button">SHOW MODS</button>
+      </div>
+
+      <div id="mods-container" class="container vh-25">
+        <h1>MODS</h1>
+        <button id="hide-mods-button">HIDE MODS</button>
+      </div>
     </main>
     <!-- End of Content -->
     <!-- Bootstrap Script -->
@@ -32,8 +90,174 @@
     ></script>
     <!-- Cup Game Code-Behind -->
     <script type="text/javascript">
-      const cupWidth = 5; // px width
-      $(document).ready(function () {});
+      var style = document.createElement('style');
+      style.type='text/css';
+      var createdAnimations = [];
+      var correctCup = 0; // Default just so game doesnt break
+      var cupNum = 5; // Default number of cups
+      const cupMax = 7; // Maximum number of cups
+
+      $(document).ready(function () {
+        let time = 1000;
+        updateCorrectCup();
+        // Start button logic
+        $('#start-button').click(function () {
+          // TODO: Change this for number of cups shown
+          $(this).hide();
+          hideCorrectCup();
+          funky5_2(time);
+          $('#test').text(`${correctCup}`);
+          window.setTimeout(function () {
+            tunnel_L(time); 
+            $('#test').text(`${correctCup}`);
+          }, time);
+          window.setTimeout(function () {
+            cut5_R(time)
+            $('#test').text(`${correctCup}`);
+          }, 2*time);
+        });
+
+        // Clicking Cup Logic
+        // TODO: Change this for the number of cups
+        for (let i=0; i < 5; i++) {
+          $(`#cup-${i}`).click(function () {
+            // If the start game button isn't hidden then no cup logic is needed
+            if (!$('#start-button').is(':hidden')) return;
+            if (i === correctCup) {
+              // TODO: Add respective effects for both
+              alert("YEH")
+            } else {
+              alert(`NONONONONONNO, cup num: ${correctCup}`)
+            }
+            $('#start-button').show();
+            updateCorrectCup();
+          });
+        }
+
+        // Show and hide mod menu logics
+        $('#show-mods-button').click(function() {
+          let modsContainer = document.getElementById('mods-container')
+          modsContainer.classList.remove('hide-mods');
+          void modsContainer.offsetWidth;
+          modsContainer.classList.add('show-mods');
+        });
+        $('#hide-mods-button').click(function() {
+          let modsContainer = document.getElementById('mods-container')
+          modsContainer.classList.remove('show-mods');
+          void modsContainer.offsetWidth;
+          modsContainer.classList.add('hide-mods');
+        });
+      });
+
+      // Change the correct cup after a round of the game
+      function updateCorrectCup() {
+        correctCup = Math.floor(Math.random() * cupNum);
+      }
+
+      // Shows correct cup
+      function showCorrectCup() {
+        $(`#cup-${correctCup}`).attr('src', 'img/placeholder-correct.png');
+      }
+
+      // Changes all the cups back to default texture before game
+      function hideCorrectCup() {
+        for (let i=0; i < 5; i++) {
+          $(`#cup-${i}`).attr('src', 'img/placeholder.jpg');
+        }
+      }
+
+      // Moves the cup x units to the right, negative makes it move left
+      // and upDir up if pos down if neg, zero locks y axis movement
+      // time in ms for how long the animation lasts
+      function moveCup(cupId, upDir, rightUnit, time) {
+        let cup = document.getElementById(cupId);
+        // Clear prior animations 
+        cup.className = '';
+        cup.style.animation = ''; 
+
+        let className = `up${upDir}-right${rightUnit}-time${time}`
+
+        // Memoization for less computation
+        if (createdAnimations.includes(className)) {
+          void cup.offsetWidth; // Weird chatgpt hack that reflows the animation
+          cup.className = className;
+          return;
+        } 
+
+        // Locks the upDir to only move up one whole cupwidth
+        upDir = Math.min(Math.max(upDir, -1), 1);
+        // TODO: Make a similar clamp for the max number of current cups
+
+        let dx = document.getElementById('cup-1').clientWidth * rightUnit;
+        let dy = -(document.getElementById('cup-1').clientHeight) * upDir; // * -1 because pos is down for html
+        
+        style.innerText += `.${className} {position:relative; animation-name:move-${className}; animation-duration:${time}ms}`;
+        style.innerText += `@keyframes move-${className} {0% {transform:translate(0px,0px);} 33%{transform:translate(0px,${dy}px);} 66%{transform:translate(${dx}px, ${dy}px);} 100%{transform:translate(${dx}px, 0px);}}`
+        document.getElementsByTagName('head')[0].appendChild(style);
+
+        createdAnimations.push(className); // Add class name to list of created animations
+        cup.className = className;
+      }
+
+      // Different Scramble steps
+      // Cuts the 4 left cups ignore the last cup
+      function cut5_L(time) {
+        moveCup('cup-0', -1, 1, time);
+        moveCup('cup-1', 1, -1, time);
+        moveCup('cup-2', -1, 1, time);
+        moveCup('cup-3', 1, -1, time);
+        let correctCupArr = [1, 0, 3, 2, 4];
+        correctCup = correctCupArr[correctCup];
+      }
+      // Cuts the 4 right cups ignoring the first cup
+      function cut5_R(time) {
+        moveCup('cup-1', -1, 1, time);
+        moveCup('cup-2', 1, -1, time);
+        moveCup('cup-3', -1, 1, time);
+        moveCup('cup-4', 1, -1, time);
+        let correctCupArr = [0, 2, 1, 4, 3];
+        correctCup = correctCupArr[correctCup];
+      }
+      // Tunnels the far right cup to the far left
+      function tunnel_L(time) {
+        moveCup('cup-0', -1, 1, time);
+        moveCup('cup-1', 1, 1, time);
+        moveCup('cup-2', -1, 1, time);
+        moveCup('cup-3', 1, 1, time);
+        moveCup('cup-4', 0, -4, time);
+        let correctCupArr = [1, 2, 3, 4, 0];
+        correctCup = correctCupArr[correctCup];
+      }
+      // Tunnels the far left cup to the far right
+      function tunnel5_R(time) {
+        moveCup('cup-0', 0, 4, time);
+        moveCup('cup-1', -1, -1, time);
+        moveCup('cup-2', 1, -1, time);
+        moveCup('cup-3', -1, -1, time);
+        moveCup('cup-4', 1, -1, time);
+        let correctCupArr = [4, 0, 1, 2, 3];
+        correctCup = correctCupArr[correctCup];
+      }
+      // Funky looking scramble step
+      function funky5_1(time) {
+        moveCup('cup-0', 1, 2, time);
+        moveCup('cup-1', -1, -1, time);
+        moveCup('cup-2', 0, -1, time);
+        moveCup('cup-3', -1, 1, time);
+        moveCup('cup-4', 1, -1, time);
+        let correctCupArr = [2, 0, 1, 4, 3];
+        correctCup = correctCupArr[correctCup];
+      }
+      // Funky 1 step but mirrored
+      function funky5_2(time) {
+        moveCup('cup-0', -1, 1, time);
+        moveCup('cup-1', 1, -1, time);
+        moveCup('cup-2', 0, 1, time);
+        moveCup('cup-3', -1, 1, time);
+        moveCup('cup-4', 1, -2, time);
+        let correctCupArr = [1, 0, 3, 4, 2]
+        correctCup = correctCupArr[correctCup];
+      }
     </script>
   </body>
 </html>
