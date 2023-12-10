@@ -25,10 +25,10 @@
         height: 50vh;
       }
 
-      /* body, html {
+      body, html {
         height: 100%;
         overflow: hidden;
-      } */
+      }
 
       #mods-container {
         background-color: rgba(128, 128, 128, 0.6);;
@@ -37,20 +37,20 @@
       .show-mods {
         position: relative;
         animation-name: show-mods-anim;
-        animation-duration: 1s;
-        transform:translate(0, -50vh);
+        animation-duration: 500ms;
+        transform:translate(0, -25vh);
       }
 
       .hide-mods {
         position: relative;
         animation-name: show-mods-anim;
-        animation-duration: 1s;
+        animation-duration: 500ms;
         animation-direction: reverse;
       }
 
       @keyframes show-mods-anim {
         from    {transform:translate(0px, 0px);}
-        to    {transform:translate(0px, -50vh);}
+        to    {transform:translate(0px, -25vh);}
       }
     </style>
   </head>
@@ -64,11 +64,11 @@
       <!-- Container for the cups -->
       <div id="cup-container" class="d-flex justify-content-center align-items-center vh-50">
         <!-- Cups will have built in margins -->
-        <img src="img/placeholder.jpg" id="cup-0" height="100" width="100" alt="cup"/> 
-        <img src="img/placeholder.jpg" id="cup-1" height="100" width="100" alt="cup"/>
-        <img src="img/placeholder.jpg" id="cup-2" height="100" width="100" alt="cup"/>
-        <img src="img/placeholder.jpg" id="cup-3" height="100" width="100" alt="cup"/>
-        <img src="img/placeholder.jpg" id="cup-4" height="100" width="100" alt="cup"/>
+        <img src="img/placeholder.jpg" id="cup-0" height="200" width="150" alt="cup"/> 
+        <img src="img/placeholder.jpg" id="cup-1" height="200" width="150" alt="cup"/>
+        <img src="img/placeholder.jpg" id="cup-2" height="200" width="150" alt="cup"/>
+        <img src="img/placeholder.jpg" id="cup-3" height="200" width="150" alt="cup"/>
+        <img src="img/placeholder.jpg" id="cup-4" height="200" width="150" alt="cup"/>
       </div>
       <!-- Container for start button -->
       <div id="button-container" class="container vh-25">
@@ -103,7 +103,8 @@
         // Start button logic
         $('#start-button').click(function () {
           // TODO: Change this for number of cups shown
-          $(this).hide();
+          // TODO: Make an effect for starting the game 
+          hideElementsBeforeGame();
           hideCorrectCup();
           funky5_2(time);
           $('#test').text(`${correctCup}`);
@@ -136,18 +137,35 @@
 
         // Show and hide mod menu logics
         $('#show-mods-button').click(function() {
-          let modsContainer = document.getElementById('mods-container')
-          modsContainer.classList.remove('hide-mods');
-          void modsContainer.offsetWidth;
-          modsContainer.classList.add('show-mods');
+          showModMenu();
         });
         $('#hide-mods-button').click(function() {
-          let modsContainer = document.getElementById('mods-container')
-          modsContainer.classList.remove('show-mods');
-          void modsContainer.offsetWidth;
-          modsContainer.classList.add('hide-mods');
+          hideModMenu();
         });
       });
+
+      // Hide all elements that block gameplay before play
+      function hideElementsBeforeGame() {
+        $('#start-button').hide();
+        $('#show-mods-button').hide();
+      }
+
+      function showModMenu() {
+        let modsContainer = document.getElementById('mods-container');
+        modsContainer.classList.remove('hide-mods');
+        void modsContainer.offsetWidth;
+        modsContainer.classList.add('show-mods');
+        $('#start-button').attr('disabled', 'true');
+      }
+
+      function hideModMenu() {
+        let modsContainer = document.getElementById('mods-container');  
+        modsContainer.classList.remove('show-mods');
+        void modsContainer.offsetWidth;
+        modsContainer.classList.add('hide-mods');
+        $('#start-button').removeAttr('disabled')
+
+      }
 
       // Change the correct cup after a round of the game
       function updateCorrectCup() {
@@ -186,7 +204,6 @@
 
         // Locks the upDir to only move up one whole cupwidth
         upDir = Math.min(Math.max(upDir, -1), 1);
-        // TODO: Make a similar clamp for the max number of current cups
 
         let dx = document.getElementById('cup-1').clientWidth * rightUnit;
         let dy = -(document.getElementById('cup-1').clientHeight) * upDir; // * -1 because pos is down for html
