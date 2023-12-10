@@ -69,6 +69,9 @@
         <img src="img/placeholder.jpg" id="cup-2" height="200" width="150" alt="cup"/>
         <img src="img/placeholder.jpg" id="cup-3" height="200" width="150" alt="cup"/>
         <img src="img/placeholder.jpg" id="cup-4" height="200" width="150" alt="cup"/>
+        <img src="img/placeholder.jpg" id="cup-5" height="200" width="150" alt="cup"/>
+        <img src="img/placeholder.jpg" id="cup-6" height="200" width="150" alt="cup"/>
+        
       </div>
       <!-- Container for start button -->
       <div id="button-container" class="container vh-25">
@@ -95,23 +98,28 @@
     <script type="text/javascript">
       var style = document.createElement('style');
       style.type='text/css';
-      var createdAnimations = [];
+
+      var createdAnimations = []; // Memoization so that the program doesnt try to make two of the same animation classes
       var correctCup = 0; // Default just so game doesnt break
 
-      var time = 750;
       const selectTime = [750, 500, 250]; // Time options
+      var time = selectTime[0];
 
-      var cupNum = 5; // Default number of cups
-      const selectCup = [5, 7]
+      const selectCup = [5, 7]; // Cup number options
+      var cupNum = selectCup[0]; // Default number of cups
 
-      var shuffleLength = 4; // Default length of shuffle
-      const selectLength = [4, 6, 8];
+      const selectLength = [4, 6, 8]; // Length of shuffle options
+      var shuffleLength = selectLength[0]; // Default length of shuffle
+
       const shuffleNum = 6; // Number of available shuffles, default for 5 cups
 
       $(document).ready(function () {
+        // Update everything 
         updateCorrectCup();
         updateModButtonValues();
         showCorrectCup();
+        toggleExCups();
+
         // Start button logic
         $('#start-button').click(function () {
           // TODO: Change this for number of cups shown
@@ -120,12 +128,19 @@
           hideCorrectCup();
 
           // Placeholder puzzle
-          shuffle5_linearTime(shuffleLength, time);
+          switch(cupNum) {
+            case 5:
+              shuffle5_linearTime(shuffleLength, time);
+              break;
+            case 7:
+              shuffle7_linearTime(shuffleLength, time);
+              break;
+          }   
         });
 
         // Clicking Cup Logic
         // TODO: Change this for the number of cups
-        for (let i=0; i < 5; i++) {
+        for (let i=0; i < selectCup[selectCup.length - 1]; i++) {
           $(`#cup-${i}`).click(function () {
             // If the start game button isn't hidden then no cup logic is needed
             if (!$('#start-button').is(':hidden')) return;
@@ -149,6 +164,20 @@
           hideModMenu();
         });
 
+        // Mod selection functionality'
+        $('#cup-select-button').click(function() {
+          let currentIndex = selectCup.indexOf(cupNum);
+          if (currentIndex + 1 === selectCup.length) {
+            cupNum = selectCup[0];
+          } else {
+            cupNum = selectCup[currentIndex + 1];
+          }
+          updateModButtonValues();
+          updateCorrectCup();
+          hideCorrectCup();
+          showCorrectCup();
+          toggleExCups();
+        });
         $('#time-select-button').click(function() {
           let currentIndex = selectTime.indexOf(time);
           if (currentIndex + 1 === selectTime.length) {
@@ -209,8 +238,19 @@
 
       // Changes all the cups back to default texture before game
       function hideCorrectCup() {
-        for (let i=0; i < 5; i++) {
+        for (let i=0; i < cupNum; i++) {
           $(`#cup-${i}`).attr('src', 'img/placeholder.jpg');
+        }
+      }
+
+      // Toggle extra cups, compatible with future larger cup numbers
+      function toggleExCups() {
+        // $('#test').text(`0->${cupNum - 1}, ${cupNum}->${selectCup[selectCup.length - 1] - 1}`);
+        for (let i=0; i<cupNum; i++) {
+          $(`#cup-${i}`).css('display', 'block');
+        }
+        for(let i=cupNum; i < selectCup[selectCup.length - 1]; i++) {
+          $(`#cup-${i}`).css('display', 'none');
         }
       }
 
@@ -263,9 +303,9 @@
       // Basic shuffle for 5 cups linear time meaning time is constant
       function shuffle5_linearTime(length, time) {
         for (let i=0; i < length; i++) {
-          switch(Math.floor(Math.random() * (shuffleNum + 1))) {
+          switch(Math.floor(Math.random() * (shuffleNum))) {
             case 0:
-              window.setTimeout(function() {cut5_L(time);}, i * time);
+              window.setTimeout(function() {cut5_L(time)}, i * time);
               break;
             case 1:
               window.setTimeout(function() {cut5_R(time)}, i * time);
@@ -284,10 +324,36 @@
               break;
           }
         } 
-        window.setTimeout(function() {});
       }
 
-      // Different Scramble steps
+      function shuffle7_linearTime(length, time) {
+        for (let i=0; i < length; i++) {
+          switch(Math.floor(Math.random() * (shuffleNum))) {
+            case 0:
+              window.setTimeout(function() {cut7(time)}, i * time);
+              break;
+            case 1:
+              window.setTimeout(function() {shift7_L(time)}, i * time);
+              break;
+            case 2:
+              window.setTimeout(function() {shift7_R(time)}, i * time);
+              break;
+            case 3:
+              window.setTimeout(function() {halfCutTunn7_L(time)}, i * time);
+              break;
+            case 4:
+              window.setTimeout(function() {halfCutTunn7_R(time)}, i * time);
+              break;
+            case 5:
+              window.setTimeout(function() {funky7(time)}, i * time);
+              break;
+          }
+          $('#test').text(`Anim ${i}`);
+        } 
+      }
+
+      // Steps for 5 cups
+
       // Cuts the 4 left cups ignore the last cup
       function cut5_L(time) {
         moveCup('cup-0', -1, 1, time);
@@ -344,6 +410,85 @@
         moveCup('cup-3', -1, 1, time);
         moveCup('cup-4', 1, -2, time);
         let correctCupArr = [1, 0, 3, 4, 2]
+        correctCup = correctCupArr[correctCup];
+      }
+
+      // Steps for 7 cups
+
+      // Cuts all left side cups to the right and vice versa
+      function cut7(time) {
+        moveCup('cup-0', -1, 4, time);
+        moveCup('cup-1', -1, 4, time);
+        moveCup('cup-2', -1, 4, time);
+        moveCup('cup-4', 1, -4, time);
+        moveCup('cup-5', 1, -4, time);
+        moveCup('cup-6', 1, -4, time);
+        let correctCupArr = [4, 5, 6, 3, 0, 1, 2];
+        correctCup = correctCupArr[correctCup];
+      } 
+
+      // Shifts all the odd cups to the right one, with exception to the last cup
+      function shift7_R(time) {
+        moveCup('cup-0', -1, 2, time);
+        moveCup('cup-1', 0, 0, time);
+        moveCup('cup-2', -1, 2, time);
+        moveCup('cup-3', 0, 0, time);
+        moveCup('cup-4', -1, 2, time);
+        moveCup('cup-5', 0, 0, time);
+        moveCup('cup-6', 1, -6, time);
+        let correctCupArr = [2, 1, 4, 3, 6, 5, 0];
+        correctCup = correctCupArr[correctCup];
+      }
+
+      // Shifts all the odd cups to the left one, with exception to the last cup
+      function shift7_L(time) {
+        moveCup('cup-0', -1, 6, time);
+        moveCup('cup-1', 0, 0, time);
+        moveCup('cup-2', 1, -2, time);
+        moveCup('cup-3', 0, 0, time);
+        moveCup('cup-4', 1, -2, time);
+        moveCup('cup-5', 0, 0, time);
+        moveCup('cup-6', 1, -2, time);
+        let correctCupArr = [6, 1, 0, 3, 2, 5, 4];
+        correctCup = correctCupArr[correctCup];
+      }
+
+      // Does a cut on the left and tunnels on the right
+      function halfCutTunn7_L(time) {
+        moveCup('cup-0', -1, 2, time);
+        moveCup('cup-1', 0, -1, time);
+        moveCup('cup-2', 1, -1, time);
+        moveCup('cup-3', 0, 3, time);
+        moveCup('cup-4', 1, -1, time);
+        moveCup('cup-5', 1, -1, time);
+        moveCup('cup-6', 1, -1, time);
+        let correctCupArr = [2, 0, 1, 6, 3, 4, 5];
+        correctCup = correctCupArr[correctCup];
+      }
+
+      // Does a cut on the right and tunnels on the left
+      function halfCutTunn7_R(time) {
+        moveCup('cup-0', 1, 1, time);
+        moveCup('cup-1', 1, 1, time);
+        moveCup('cup-2', 1, 1, time);
+        moveCup('cup-3', 0, -3, time);
+        moveCup('cup-4', -1, 2, time);
+        moveCup('cup-5', 0, -1, time);
+        moveCup('cup-6', 1, -1, time);
+        let correctCupArr = [1, 2, 3, 0, 6, 4, 5];
+        correctCup = correctCupArr[correctCup];
+      }
+
+            // Does a cut on the right and tunnels on the left
+      function funky7(time) {
+        moveCup('cup-0', -1, 2, time);
+        moveCup('cup-1', 0, -1, time);
+        moveCup('cup-2', 1, 1, time);
+        moveCup('cup-3', 0, -2, time);
+        moveCup('cup-4', 1, 2, time);
+        moveCup('cup-5', -1, -1, time);
+        moveCup('cup-6', -1, -1, time);
+        let correctCupArr = [2, 0, 3, 1, 6, 4, 5];
         correctCup = correctCupArr[correctCup];
       }
     </script>
