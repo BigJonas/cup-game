@@ -1,0 +1,38 @@
+.vh-25 {
+    height: 25vh;
+}
+.vh-30 {
+    height: 30vh;
+}
+.vh-50 {
+    height: 50vh;
+}
+
+body, html {
+    height: 100%;
+    overflow: hidden;
+}
+
+#mods-container {
+    background-color: rgba(255, 255, 255);
+
+}
+
+.show-mods {
+    position: relative;
+    animation-name: show-mods-anim;
+    animation-duration: 500ms;
+    transform:translate(0, -29vh); /* Show 29 percent because hiding the bottom border because I think it looks better*/
+}
+
+.hide-mods {
+    position: relative;
+    animation-name: show-mods-anim;
+    animation-duration: 500ms;
+    animation-direction: reverse;
+}
+
+@keyframes show-mods-anim {
+    from    {transform:translate(0px, 0px);}
+    to    {transform:translate(0px, -29vh);}
+}

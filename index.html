@@ -17,43 +17,10 @@
       integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
       crossorigin="anonymous"
     ></script>
+    <!-- Game Logic  -->
     <script src="game.js"></script>
-    <style>
-      .vh-25 {
-        height: 25vh;
-      }
-      .vh-50 {
-        height: 50vh;
-      }
-
-      body, html {
-        height: 100%;
-        overflow: hidden;
-      }
-
-      #mods-container {
-        background-color: rgba(128, 128, 128, 0.6);
-      }
-
-      .show-mods {
-        position: relative;
-        animation-name: show-mods-anim;
-        animation-duration: 500ms;
-        transform:translate(0, -25vh);
-      }
-
-      .hide-mods {
-        position: relative;
-        animation-name: show-mods-anim;
-        animation-duration: 500ms;
-        animation-direction: reverse;
-      }
-
-      @keyframes show-mods-anim {
-        from    {transform:translate(0px, 0px);}
-        to    {transform:translate(0px, -25vh);}
-      }
-    </style>
+    <!-- Some extra styles -->
+    <link href="style.css" rel="stylesheet">
   </head>
   <body>
     <!-- Start of Content -->
@@ -66,27 +33,33 @@
       <!-- Container for the cups -->
       <div id="cup-container" class="d-flex justify-content-center align-items-center vh-50">
         <!-- Cups will have built in margins -->
-        <img src="img/placeholder.jpg" id="cup-0" height="150" width="100" alt="cup"/> 
-        <img src="img/placeholder.jpg" id="cup-1" height="150" width="100" alt="cup"/>
-        <img src="img/placeholder.jpg" id="cup-2" height="150" width="100" alt="cup"/>
-        <img src="img/placeholder.jpg" id="cup-3" height="150" width="100" alt="cup"/>
-        <img src="img/placeholder.jpg" id="cup-4" height="150" width="100" alt="cup"/>
-        <img src="img/placeholder.jpg" id="cup-5" height="150" width="100" alt="cup"/>
-        <img src="img/placeholder.jpg" id="cup-6" height="150" width="100" alt="cup"/>
+        <img src="img/cup.png" id="cup-0" height="125" width="100" alt="cup"/> 
+        <img src="img/cup.png" id="cup-1" height="125" width="100" alt="cup"/>
+        <img src="img/cup.png" id="cup-2" height="125" width="100" alt="cup"/>
+        <img src="img/cup.png" id="cup-3" height="125" width="100" alt="cup"/>
+        <img src="img/cup.png" id="cup-4" height="125" width="100" alt="cup"/>
+        <img src="img/cup.png" id="cup-5" height="125" width="100" alt="cup"/>
+        <img src="img/cup.png" id="cup-6" height="125" width="100" alt="cup"/>
         
       </div>
       <!-- Container for start button -->
       <div id="button-container" class="d-flex justify-content-center align-items-center vh-25">
-        <button id="start-button" class="mx-2">Start Game</button>
-        <button id="show-mods-button" class="mx-2">SHOW MODS</button>
+        <button id="start-button" class="btn btn-primary btn-lg mx-2">Start Game</button>
+        <button id="show-mods-button" class="btn btn-primary btn-lg mx-2">Show Mods</button>
       </div>
 
-      <div id="mods-container" class="container vh-25">
-        <h1>MODS</h1>
-        <button id="hide-mods-button">HIDE MODS</button>
-        <button id="cup-select-button">Cup</button>
-        <button id="time-select-button">Time</button>
-        <button id="length-select-button">Length</button>
+      <div id="mods-container" class="container border border-3 rounded border-dark justify-content-center align-items-center vh-30">
+        <div class="d-flex justify-content-center align-items-center">
+          <h1>Mods</h1>
+        </div>
+        <div class="d-flex justify-content-center align-items-center mb-3">
+          <button id="cup-select-button" class="btn btn-primary btn-lg mx-2">Cup</button>
+          <button id="time-select-button" class="btn btn-primary btn-lg mx-2">Time</button>
+          <button id="length-select-button" class="btn btn-primary btn-lg mx-2">Length</button>  
+        </div>
+        <div class="d-flex justify-content-center align-items-center my-3">
+          <button id="hide-mods-button" class="btn btn-primary btn-lg mx-2">Hide Mods</button>
+        </div>
       </div>
     </main>
     <!-- End of Content -->

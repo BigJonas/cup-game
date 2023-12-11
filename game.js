@@ -56,7 +56,8 @@ $(document).ready(function () {
   for (let i=0; i < selectCup[selectCup.length - 1]; i++) {
     $(`#cup-${i}`).click(function () {
         // If the start game button isn't hidden then no cup logic is needed
-        if (!$('#start-button').is(':hidden') || playingGame) return;
+        if (!$('#start-button').is(':hidden') && playingGame) return;
+        showCorrectCup();
         if (i === correctCup) {
             // TODO: Add respective effects for both
             // alert("YEH")
@@ -149,13 +150,13 @@ function hideModMenu() {
 // Shows correct cup
 function showCorrectCup() {
     hideCorrectCup(); // Gets rid of old correct cup in the case that it changes 
-    $(`#cup-${correctCup}`).attr('src', 'img/placeholder-correct.png');
+    $(`#cup-${correctCup}`).attr('src', 'img/cupball.png');
 }
 
 // Changes all the cups back to default texture before game
 function hideCorrectCup() {
     for (let i=0; i < cupNum; i++) {
-        $(`#cup-${i}`).attr('src', 'img/placeholder.jpg');
+        $(`#cup-${i}`).attr('src', 'img/cup.png');
     }
 }
 
@@ -163,6 +164,10 @@ function hideCorrectCup() {
 function toggleExCups() {
     // $('#test').text(`0->${cupNum - 1}, ${cupNum}->${selectCup[selectCup.length - 1] - 1}`);
     for (let i=0; i<cupNum; i++) {
+        let cup = document.getElementById(`cup-${i}`);
+        // Clear prior animations 
+        cup.className = '';
+        cup.style.animation = ''; 
         $(`#cup-${i}`).css('display', 'block');
     }
     for(let i=cupNum; i < selectCup[selectCup.length - 1]; i++) {
@@ -195,11 +200,15 @@ function deleteTitleAndRetype(time, settleTime, newText) {
     }
 
     // Type new text
-    setTimeout(function() {
+    window.setTimeout(function() {
         for (let i=0; i < newText.length; i++) {
             setTimeout(function() {title.innerHTML += newText.charAt(i);}, (i * second_typingSpeed));
         }
     }, (time / 2) + settleTime);
+    // Failsafe incase it gets intuerrupted hopefully it does settlet at "Cup Game"
+    window.setTimeout(function() {
+        title.innerHTML = newText;
+    }, time + settleTime + 20);
 }
 
 /**
