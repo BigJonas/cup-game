@@ -28,7 +28,6 @@ $(document).ready(function () {
 
   // Start button logic
   $('#start-button').click(function () {
-    // TODO: Make an effect for starting the game 
     hideElementsBeforeGame();
     deleteTitleAndRetype(titleAnimTime, titleAnimSettleTime, "Focus");
     playingGame = true;
@@ -56,10 +55,9 @@ $(document).ready(function () {
   for (let i=0; i < selectCup[selectCup.length - 1]; i++) {
     $(`#cup-${i}`).click(function () {
         // If the start game button isn't hidden then no cup logic is needed
-        if (!$('#start-button').is(':hidden') && playingGame) return;
+        if (!$('#start-button').is(':hidden') || playingGame) return;
         showCorrectCup();
         if (i === correctCup) {
-            // TODO: Add respective effects for both
             // alert("YEH")
             deleteTitleAndRetype(titleAnimTime / 2, titleAnimSettleTime, "Correct");
         } else {
@@ -224,9 +222,9 @@ function moveCup(cupId, upDir, rightUnit, time) {
   cup.className = '';
   cup.style.animation = ''; 
 
-  let className = `up${upDir}-right${rightUnit}-time${time}`
+  let className = `up${upDir}-right${rightUnit}-time${time}`;
 
-  // Memoization for less computation
+  // Memorization for less computation
   if (createdAnimations.includes(className)) {
     void cup.offsetWidth; // Weird chatgpt hack that reflows the animation
     cup.className = className;
@@ -238,8 +236,6 @@ function moveCup(cupId, upDir, rightUnit, time) {
 
   let dx = document.getElementById('cup-0').clientWidth * rightUnit;
   let dy = -1 * document.getElementById('cup-0').clientHeight * upDir; // * -1 because pos is down for html
-
-//   document.getElementById('test').innerHTML = `dy ${dy}, dx ${dx}`;
   
   style.innerText += `.${className} {position:relative; animation-name:move-${className}; animation-duration:${time}ms}`;
   style.innerText += `@keyframes move-${className} {0% {transform:translate(0px,0px);} 33%{transform:translate(0px,${dy}px);} 66%{transform:translate(${dx}px, ${dy}px);} 100%{transform:translate(${dx}px, 0px);}}`
@@ -275,6 +271,7 @@ function shuffle5_linearTime(length, time) {
   } 
 }
 
+// Basic shuffle for 7 cups linear time meaning time is constant
 function shuffle7_linearTime(length, time) {
   for (let i=0; i < length; i++) {
     switch(Math.floor(Math.random() * (shuffleNum))) {
